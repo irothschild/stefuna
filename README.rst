@@ -9,6 +9,7 @@ Stefuna is a simple AWS Step Function Activity server framework.
 It makes it incredibly quick and easy to write workers to
 process activity tasks in Python.
 
+
 Implementation
 ---------------
 
@@ -21,8 +22,14 @@ server.
 
 The ``run_task`` method can do whatever work it requires and then
 return a result as a string or dict (which is automatically JSON
-stringified). If the method raises an exception, the task is failed
-with a ``Task.Failure`` error.
+stringified). It can be a long-running task but the worker process
+won't be released until the method returns.
+
+If ``run_task`` raises an exception, the task is failed
+with a ``Task.Failure`` error which can be handled in the Step
+Function state machine. Alternatively, a worker can call
+```self.send_task_failure(error, cause)``` with a custom error
+string and return value from ```run_task``` will be ignored.
 
 Configurable heartbeats are supported for longer-running tasks.
 
