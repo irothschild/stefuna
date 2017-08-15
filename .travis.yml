@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+install:
+  pip install flake8
+  pip install coveralls
+
+before_script:
+   flake8 .
+
+# command to run tests
+script:
+   coverage run --source=stefuna --omit stefuna.test --concurrency thread setup.py test
+   coverage report
