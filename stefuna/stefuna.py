@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 import sys
 sys.path.append('.')
-import argparse
-from stefuna import Server, configure_logger
-import boto3
-from pydoc import locate
-import logging
+import argparse  # noqa
+from stefuna import Server, configure_logger  # noqa
+from pydoc import locate  # noqa
+import logging  # noqa
 
 
 configure_logger('',
