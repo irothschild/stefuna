@@ -36,6 +36,7 @@ Create a worker class, which is a subclass of the `stefuna.Worker`
 in the file `hello_worker.py`:
 
 .. code-block:: python
+
     import logging
     from stefuna import Worker
 
@@ -62,6 +63,7 @@ Create a config file `hello_config.py`, setting the worker class, server name, a
 activity ARN:
 
 .. code-block:: python
+
     #
     # Stefuna server worker config file
     #
@@ -100,6 +102,7 @@ activity ARN:
 Run the server:
 
 .. code-block:: bash
+
     $ stefuna --config=hello_config
 
 
