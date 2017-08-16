@@ -63,7 +63,7 @@ class Server(object):
                      self.server_name, processes)
 
         self.pool = Pool(processes=processes,
-                         initializer=init_worker, initargs=(Server.worker_class, heartbeat),
+                         initializer=init_worker, initargs=(Server.worker_class, region, heartbeat),
                          maxtasksperchild=maxtasksperchild)
 
         # We keep track of available workers with a semaphore. This allows
