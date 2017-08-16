@@ -2,6 +2,7 @@ import logging
 import json
 import time
 import boto3
+from botocore.config import Config as BotoCoreConfig
 import signal
 from abc import ABCMeta, abstractmethod
 from threading import Thread, Lock
@@ -30,9 +31,10 @@ class Worker(object):
     # Subclasses can use this worker logger if they wish.
     logger = logger
 
-    def __init__(self, heartbeat=0):
+    def __init__(self, region=None, heartbeat=0):
 
-        self.sf_client = boto3.client('stepfunctions')
+        boto_config = BotoCoreConfig(region_name=region)
+        self.sf_client = boto3.client('stepfunctions', config=boto_config)
 
         # This will be set to the current task_token of a running task.
         self.task_token = None
@@ -46,7 +48,7 @@ class Worker(object):
             self._set_task_token(None)
             self.heartbeat_thread = Thread(target=self._run_heartbeat_thread,
                                            name='heartbeat',
-                                           args=(heartbeat,), daemon=True)
+                                           args=(region, heartbeat), daemon=True)
             self.heartbeat_thread.start()
         else:
             self.token_lock = None
@@ -172,15 +174,16 @@ class Worker(object):
             except:
                 self.logger.exception('Error sending heartbeat for task %s', token)
 
-    def _run_heartbeat_thread(self, beat):
+    def _run_heartbeat_thread(self, region, beat):
         self.logger.info('Started heartbeat_thread %d', beat)
-        self.heartbeat_sf_client = boto3.client('stepfunctions')
+        boto_config = BotoCoreConfig(region_name=region)
+        self.heartbeat_sf_client = boto3.client('stepfunctions', config=boto_config)
         while True:
             time.sleep(beat)
             self.heartbeat()
 
 
-def init_worker(worker_class, heartbeat):
+def init_worker(worker_class, region, heartbeat):
     """
     One-time initialize of each worker process.
     """
@@ -189,7 +192,7 @@ def init_worker(worker_class, heartbeat):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     # Create the single instance.
-    Worker.worker_instance = worker_class(heartbeat=heartbeat)
+    Worker.worker_instance = worker_class(region=region, heartbeat=heartbeat)
 
 
 def run_worker_task(task_token, input_data):
