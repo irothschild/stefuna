@@ -37,6 +37,8 @@ def main():
                         help='Module and class of worker in dot notation. Overrides config setting.')
     parser.add_argument('--processes', type=int, dest='processes', action='store', required=False,
                         help='Number of worker processes. Overrides config setting. If 0, cpu_count is used.')
+    parser.add_argument('--loglevel', dest='loglevel', action='store', required=False,
+                        help='Loglevel (debug, info, warning, error or critical). Overrides config setting.')
 
     args = parser.parse_args()
 
@@ -50,6 +52,16 @@ def main():
             local_config = {k: v for k, v in vars(local_config).items() if not k.startswith('_')}
         config.update(local_config)
 
+    if args.loglevel:
+        config['loglevel'] = args.loglevel
+
+    loglevel = config.get('loglevel')
+    if loglevel is not None:
+        numeric_level = getattr(logging, loglevel.upper(), None)
+        if not isinstance(numeric_level, int):
+            raise ValueError('Invalid log level: %s' % loglevel)
+        logging.getLogger(''). setLevel(numeric_level)
+
     if args.worker:
         config['worker'] = args.worker
 
@@ -57,7 +69,7 @@ def main():
         # Setting to None will use the cpu_count processes
         config['processes'] = args.processes if args.processes else None
 
-    worker_count = config['processes']
+    worker_count = config.get('processes')
     if worker_count is None:
         worker_count = cpu_count()
 
