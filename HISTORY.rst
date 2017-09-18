@@ -3,6 +3,9 @@
 History
 -------
 
+0.8.4 [2017-09-18]
+* Add loglevel arg
+
 0.8.3 [2017-09-18]
 * Add processes arg to stefuna
 * Add timestamp to log format
