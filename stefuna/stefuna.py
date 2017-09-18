@@ -4,11 +4,12 @@ sys.path.append('.')
 import argparse  # noqa
 from stefuna import Server, configure_logger  # noqa
 from pydoc import locate  # noqa
+from multiprocessing import cpu_count  # noqa
 import logging  # noqa
 
 
 configure_logger('',
-                 '[%(levelname)s/%(processName)s/%(process)d] %(message)s',
+                 '%(asctime)s [%(levelname)s/%(processName)s/%(process)d] %(message)s',
                  logging.StreamHandler())
 
 
@@ -34,6 +35,8 @@ def main():
                         help='Module or dict of config to override defaults')
     parser.add_argument('--worker', dest='worker', action='store', required=False,
                         help='Module and class of worker in dot notation. Overrides config setting.')
+    parser.add_argument('--processes', type=int, dest='processes', action='store', required=False,
+                        help='Number of worker processes. Overrides config setting. If 0, cpu_count is used.')
 
     args = parser.parse_args()
 
@@ -50,7 +53,16 @@ def main():
     if args.worker:
         config['worker'] = args.worker
 
-    logger.info('Running {0} for activity {1} {2}'.format(config['worker'], config['name'], config['activity_arn']))
+    if args.processes is not None:
+        # Setting to None will use the cpu_count processes
+        config['processes'] = args.processes if args.processes else None
+
+    worker_count = config['processes']
+    if worker_count is None:
+        worker_count = cpu_count()
+
+    logger.info('Running {0} for activity {1} {2} with {3} workers'.format(
+        config['worker'], config['name'], config['activity_arn'], worker_count))
 
     Server.worker_class = locate(config['worker'])
 
