@@ -9,6 +9,13 @@ Stefuna is a simple AWS Step Function Activity server framework.
 It makes it incredibly quick and easy to write workers to
 process activity tasks in Python.
 
+Install
+-------
+
+.. code-block:: bash
+
+    $ pip install stefuna
+
 
 Implementation
 ---------------
