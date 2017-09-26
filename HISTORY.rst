@@ -3,6 +3,9 @@
 History
 -------
 
+0.9.0 [2017-09-26]
+* Add HTTP healthcheck
+
 0.8.4 [2017-09-18]
 * Add loglevel arg
 

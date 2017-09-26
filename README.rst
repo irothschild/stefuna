@@ -98,6 +98,12 @@ activity ARN:
     # If None, workers will not be killed.
     maxtasksperchild = None
 
+    # If set to a non-zero integer, an HTTP healthcheck handler listens on
+    # the port number.
+    # Healthcheck requests are GET requests to 'http://localhost:<healthcheck>/'
+    # and return JSON: {"status": "ok"}
+    healthcheck = 8080
+
     # The worker_config is an arbitrary dictionary that is available
     # in the worker instance as self.config
     # Use it for worker-specific configuration.

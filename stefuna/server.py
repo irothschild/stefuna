@@ -3,6 +3,9 @@ import logging
 import boto3
 import signal
 import socket
+import json
+from http.server import HTTPServer
+from http.server import BaseHTTPRequestHandler
 from botocore.config import Config as BotoCoreConfig
 from threading import Semaphore, Thread, Event
 from multiprocessing import Pool
@@ -30,7 +33,8 @@ class Server(object):
     worker_class = None
 
     def __init__(self, name='StefunaWorker', activity_arn=None,
-                 processes=None, heartbeat=0, maxtasksperchild=100, worker_config=None):
+                 processes=None, heartbeat=0, maxtasksperchild=100, worker_config=None,
+                 healthcheck=None):
 
         if Server.worker_class is None:
             raise ValueError('Server.worker_class must be set to a Worker '
@@ -71,6 +75,11 @@ class Server(object):
         # a worker available.
         self.workers = Semaphore(processes)
         self.stop_event = Event()
+
+        if healthcheck:
+            self.healthcheck_thread = Thread(target=self._run_healthcheck_thread,
+                                             name='healthcheck', args=(healthcheck,), daemon=True)
+            self.healthcheck_thread.start()
 
         # Handle signals for graceful shutdown
         signal.signal(signal.SIGTERM, self._close_signal)
@@ -132,3 +141,22 @@ class Server(object):
         """
         logger.debug('Closing server. Waiting for run loop to end')
         self.stop_event.set()
+
+    def _run_healthcheck_thread(self, port):
+        logger.info('Started healthcheck thread')
+
+        stop_event = self.stop_event
+
+        class HealthcheckHTTPRequestHandler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                health = {'status': 'stopped' if stop_event.is_set() else 'ok'}
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(bytes(json.dumps(health), 'UTF-8'))
+
+            def log_message(self, format, *args):
+                logger.debug("Healthcheck from %s %s" % (self.address_string(), format % args))
+
+        http_server = HTTPServer(('', port), HealthcheckHTTPRequestHandler)
+        http_server.serve_forever()
