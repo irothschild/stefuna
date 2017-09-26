@@ -23,6 +23,7 @@ config = {
     'activity_arn': None,
     'processes': None,
     'heartbeat': 0,
+    'healthcheck': 8080,
     'maxtasksperchild': 100,
     'worker': 'UNSET_WORKER_CLASS',
     'worker_config': {}
@@ -60,7 +61,8 @@ def main():
         numeric_level = getattr(logging, loglevel.upper(), None)
         if not isinstance(numeric_level, int):
             raise ValueError('Invalid log level: %s' % loglevel)
-        logging.getLogger(''). setLevel(numeric_level)
+        logger.setLevel(numeric_level)
+        logging.getLogger('').setLevel(numeric_level)
 
     if args.worker:
         config['worker'] = args.worker
@@ -81,7 +83,7 @@ def main():
     server = Server(name=config['name'], activity_arn=config['activity_arn'],
                     processes=config['processes'], heartbeat=config['heartbeat'],
                     maxtasksperchild=config['maxtasksperchild'],
-                    worker_config=config['worker_config'])
+                    worker_config=config['worker_config'], healthcheck=config['healthcheck'])
 
     server.run()  # does not return
     sys.exit(0)
