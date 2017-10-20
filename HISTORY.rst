@@ -3,6 +3,9 @@
 History
 -------
 
+0.9.1 [2017-10-20]
+* Suppress boto dropped connection info log messages.
+
 0.9.0 [2017-09-26]
 * Add HTTP healthcheck
 

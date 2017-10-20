@@ -16,6 +16,10 @@ configure_logger('',
 logger = logging.getLogger('stefuna')
 logger.setLevel(logging.INFO)
 
+# boto connectionpool will log an INFO message "Resetting dropped connection" every 4 minutes or so.
+# We turn this off by raising the loglevel of the botocore connectionpool.
+logging.getLogger("botocore.vendored.requests.packages.urllib3.connectionpool").setLevel(logging.WARNING)
+
 
 # Default config
 config = {
