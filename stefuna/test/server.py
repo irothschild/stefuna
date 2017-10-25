@@ -1,4 +1,5 @@
 import boto3
+import botocore
 import unittest
 import time
 import json
@@ -15,6 +16,7 @@ class SFClient(object):
         self.failures = []
         self.heartbeats = []
         self.activity_count = 0
+        self.heartbeat_exception = False
 
     def reset(self):
         self.successes = []
@@ -30,6 +32,9 @@ class SFClient(object):
 
     def send_task_heartbeat(self, taskToken):
         self.heartbeats.append(taskToken)
+        if self.heartbeat_exception:
+            raise botocore.exceptions.ClientError({'Error': {'Code': 'TaskTimedOut', 'Message': 'timed out'}},
+                                                  'SendTaskHeartbeat')
 
     def get_activity_task(self, activityArn=None, workerName=None):
         if self.activity_count > 0:
@@ -45,7 +50,7 @@ original_boto3_client = boto3.client
 
 def mock_stepfunction_client(name, config=None, **kwargs):
     if name == 'stepfunctions':
-        return SFClient()
+        return SFClient(**kwargs)
     else:
         return original_boto3_client(name, config=config, **kwargs)
 
@@ -164,3 +169,19 @@ class TestServer(unittest.TestCase):
         self.assertEqual(len(worker.sf_client.heartbeats), 0)
         self.assertEqual(len(worker.heartbeat_sf_client.heartbeats), 1)
         self.assertEqual(worker.heartbeat_sf_client.heartbeats[0], task_token)
+
+    def test_worker_heartbeat_fail(self):
+        worker = SlowWorker(heartbeat=1)
+        worker.heartbeat_sf_client.heartbeat_exception = True
+        task_token = 'token123'
+        input_data = '{"name":"foo"}'
+        ret = worker._run_task(task_token, input_data)
+        # Wait to make sure another heartbeat isn't sent
+        time.sleep(3)
+        self.assertEqual(ret[0], task_token)
+        self.assertEqual(ret[1], 'task_success')
+        self.assertEqual(len(worker.sf_client.successes), 1)
+        self.assertEqual(worker.sf_client.successes[0][0], task_token)
+        self.assertEqual(len(worker.sf_client.failures), 0)
+        self.assertEqual(len(worker.sf_client.heartbeats), 0)
+        self.assertEqual(len(worker.heartbeat_sf_client.heartbeats), 1)

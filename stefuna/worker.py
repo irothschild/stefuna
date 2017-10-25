@@ -3,6 +3,7 @@ import json
 import time
 import boto3
 from botocore.config import Config as BotoCoreConfig
+from botocore.exceptions import ClientError
 import signal
 from abc import ABCMeta, abstractmethod
 from threading import Thread, Lock
@@ -46,6 +47,7 @@ class Worker(object):
         if heartbeat:
             self.token_lock = Lock()
             self._set_task_token(None)
+            self._heartbeat_fail_token = None
             self.heartbeat_thread = Thread(target=self._run_heartbeat_thread,
                                            name='heartbeat',
                                            args=(region, heartbeat), daemon=True)
@@ -167,12 +169,22 @@ class Worker(object):
         token = self.task_token
         self.token_lock.release()
 
-        if token is not None:
+        if token is not None and token != self._heartbeat_fail_token:
             try:
-                self.logger.debug('Sending heartbeat for task %s', token)
+                self.logger.debug('Sending heartbeat for task')
                 self.heartbeat_sf_client.send_task_heartbeat(taskToken=token)
+                self._heartbeat_fail_token = None
+
+            except ClientError as e:
+                ecode = e.response['Error'].get('Code', 'Unknown')
+                if ecode in ['TaskDoesNotExist', 'InvalidToken', 'TaskTimedOut']:
+                    # We set the heartbeat_fail_token so we don't retry a heartbeat for this token.
+                    self._heartbeat_fail_token = token
+                    self.logger.error('Error sending heartbeat for task: %s', ecode)
+                else:
+                    self.logger.exception('Error sending heartbeat for task')
             except:
-                self.logger.exception('Error sending heartbeat for task %s', token)
+                self.logger.exception('Error sending heartbeat for task')
 
     def _run_heartbeat_thread(self, region, beat):
         self.logger.info('Started heartbeat_thread %d', beat)
