@@ -3,6 +3,11 @@
 History
 -------
 
+0.9.2 [2017-10-25]
+* Change default loglevel to info.
+* Improve log format.
+* Handle client error when doing heartbeat and don't retry for failed tokens.
+
 0.9.1 [2017-10-20]
 * Suppress boto dropped connection info log messages.
 
