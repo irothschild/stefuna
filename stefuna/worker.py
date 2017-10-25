@@ -121,7 +121,7 @@ class Worker(object):
 
             try:
                 self._set_task_token(None)
-            except:
+            except Exception:
                 self.logger.exception('Exception clearing task token')
 
             return (task_token, status)
@@ -145,7 +145,7 @@ class Worker(object):
                 output=task_result
             )
             self._task_result_status = True
-        except:
+        except Exception:
             # We log the error and the task state will eventually timeout
             self.logger.exception('Error sending task success for task')
             self._task_result_status = False
@@ -157,7 +157,7 @@ class Worker(object):
                 error=error,
                 cause=cause
             )
-        except:
+        except Exception:
             # We log the error and the task state will eventually timeout
             self.logger.exception('Error sending task failure for task')
         finally:
@@ -183,7 +183,7 @@ class Worker(object):
                     self.logger.error('Error sending heartbeat for task: %s', ecode)
                 else:
                     self.logger.exception('Error sending heartbeat for task')
-            except:
+            except Exception:
                 self.logger.exception('Error sending heartbeat for task')
 
     def _run_heartbeat_thread(self, region, beat):
