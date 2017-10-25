@@ -9,12 +9,11 @@ import logging  # noqa
 
 
 configure_logger('',
-                 '%(asctime)s [%(levelname)s/%(processName)s/%(process)d] %(message)s',
+                 '%(asctime)s [%(levelname)s][%(processName)s/%(process)d] %(message)s',
                  logging.StreamHandler())
 
 
 logger = logging.getLogger('stefuna')
-logger.setLevel(logging.INFO)
 
 # boto connectionpool will log an INFO message "Resetting dropped connection" every 4 minutes or so.
 # We turn this off by raising the loglevel of the botocore connectionpool.
@@ -30,7 +29,8 @@ config = {
     'healthcheck': 8080,
     'maxtasksperchild': 100,
     'worker': 'UNSET_WORKER_CLASS',
-    'worker_config': {}
+    'worker_config': {},
+    'loglevel': 'info'
 }
 
 
