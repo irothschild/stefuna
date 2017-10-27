@@ -28,6 +28,8 @@ config = {
     'heartbeat': 0,
     'healthcheck': 8080,
     'maxtasksperchild': 100,
+    'server': None,
+    'server_config': {},
     'worker': 'UNSET_WORKER_CLASS',
     'worker_config': {},
     'loglevel': 'info'
@@ -84,10 +86,15 @@ def main():
 
     Server.worker_class = locate(config['worker'])
 
-    server = Server(name=config['name'], activity_arn=config['activity_arn'],
-                    processes=config['processes'], heartbeat=config['heartbeat'],
-                    maxtasksperchild=config['maxtasksperchild'],
-                    worker_config=config['worker_config'], healthcheck=config['healthcheck'])
+    server_class = Server
+    if config['server']:
+        server_class = locate(config['server'])
+    print(config)
+    server = server_class(name=config['name'], activity_arn=config['activity_arn'],
+                          processes=config['processes'], heartbeat=config['heartbeat'],
+                          maxtasksperchild=config['maxtasksperchild'],
+                          server_config=config['server_config'], worker_config=config['worker_config'],
+                          healthcheck=config['healthcheck'])
 
     server.run()  # does not return
     sys.exit(0)

@@ -33,14 +33,16 @@ class Server(object):
     worker_class = None
 
     def __init__(self, name='StefunaWorker', activity_arn=None,
-                 processes=None, heartbeat=0, maxtasksperchild=100, worker_config=None,
-                 healthcheck=None):
+                 processes=None, heartbeat=0, maxtasksperchild=100,
+                 server_config=None, worker_config=None, healthcheck=None):
 
         if Server.worker_class is None:
             raise ValueError('Server.worker_class must be set to a Worker '
                              'subclass before creating a server instance.')
 
         Server.worker_class.config = worker_config
+
+        self.config = server_config
 
         # Set the client region to the region in the arn
         region = activity_region(activity_arn)
@@ -59,6 +61,9 @@ class Server(object):
             pass
 
         self.server_name = '{0}-{1}'.format(name, host if host is not None else os.getpid())
+
+        # Init the server before the workers are created.
+        self.init(server_config)
 
         if processes is None:
             processes = os.cpu_count()
@@ -84,6 +89,10 @@ class Server(object):
         # Handle signals for graceful shutdown
         signal.signal(signal.SIGTERM, self._close_signal)
         signal.signal(signal.SIGINT, self._close_signal)
+
+    def init(self, server_config):
+        """Can be overridden in a subclass to initialize a server."""
+        pass
 
     def run(self):
         logger.debug('Run server')

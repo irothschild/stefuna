@@ -3,6 +3,9 @@
 History
 -------
 
+0.9.3 [2017-10-27]
+* Add customizable Server subclass with init method.
+
 0.9.2 [2017-10-25]
 * Change default loglevel to info.
 * Improve log format.

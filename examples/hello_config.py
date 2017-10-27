@@ -2,6 +2,9 @@
 # Stefuna server worker config file
 #
 
+# [OPTIONAL] The module path of the server class
+server = 'examples.hello_server.HelloServer'
+
 # The module path of the worker class
 worker = 'examples.hello_worker.HelloWorker'
 
@@ -31,7 +34,14 @@ maxtasksperchild = None
 # and return JSON: {"status": "ok"}
 healthcheck = 8080
 
-# The worker_config is an arbitrary dictionary that is available
+# [OPTIONAL] The server_config is an arbitrary dictionary that is available
+# in the server instance as self.config and passed to server init()
+# Use it for server-specific configuration.
+server_config = {
+    'foo': 'bar'
+}
+
+# [OPTIONAL] The worker_config is an arbitrary dictionary that is available
 # in the worker instance as self.config
 # Use it for worker-specific configuration.
 worker_config = {

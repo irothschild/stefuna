@@ -21,7 +21,8 @@ Implementation
 ---------------
 
 Stefuna uses a multiprocessing Pool of pre-forked worker processes
-to run the activity tasks. The is a single instance of a Worker
+to run the activity tasks. There is a single instance of a Server
+class in the main process and a single instance of a Worker
 class in each worker process. To implement your task, simply
 create a Worker subclass, override the
 ``run_task(self, task_token, input_data)`` method and start the
@@ -39,6 +40,10 @@ Function state machine. Alternatively, a worker can call
 string and return value from ```run_task``` will be ignored.
 
 Configurable heartbeats are supported for longer-running tasks.
+
+The Server instance in the main class can be customized by
+setting a custom Server subclass in the config and overriding
+the `init` method.
 
 
 Getting Started
@@ -82,6 +87,9 @@ activity ARN:
     # Stefuna server worker config file
     #
 
+    # [OPTIONAL] The module path of the server class
+    server = 'examples.hello_server.HelloServer'
+
     # The module path of the worker class
     worker = 'examples.hello_worker.HelloWorker'
 
@@ -111,7 +119,14 @@ activity ARN:
     # and return JSON: {"status": "ok"}
     healthcheck = 8080
 
-    # The worker_config is an arbitrary dictionary that is available
+    # [OPTIONAL] The server_config is an arbitrary dictionary that is available
+    # in the server instance as self.config and passed to server init()
+    # Use it for server-specific configuration.
+    server_config = {
+        'foo': 'bar'
+    }
+
+    # [OPTIONAL] The worker_config is an arbitrary dictionary that is available
     # in the worker instance as self.config
     # Use it for worker-specific configuration.
     worker_config = {
