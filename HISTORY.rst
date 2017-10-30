@@ -3,6 +3,9 @@
 History
 -------
 
+0.9.x [FUTURE]
+* Fix missing attribute bug if no healthcheck configured
+
 0.9.5 [2017-10-30]
 * Keep pypi happy
 
