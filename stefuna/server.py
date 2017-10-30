@@ -82,9 +82,10 @@ class Server(object):
         self.stop_event = Event()
 
         if healthcheck:
-            self.healthcheck_thread = Thread(target=self._run_healthcheck_thread,
-                                             name='healthcheck', args=(healthcheck,), daemon=True)
-            self.healthcheck_thread.start()
+            self._create_healthcheck(healthcheck)
+            healthcheck_thread = Thread(target=self._run_healthcheck_thread,
+                                        name='healthcheck', args=(), daemon=True)
+            healthcheck_thread.start()
 
         # Handle signals for graceful shutdown
         signal.signal(signal.SIGTERM, self._close_signal)
@@ -148,17 +149,17 @@ class Server(object):
         """
         Signal the server run loop to stop.
         """
-        logger.debug('Closing server. Waiting for run loop to end')
+        logger.info('Closing server. Waiting for run loop to end')
         self.stop_event.set()
 
-    def _run_healthcheck_thread(self, port):
-        logger.info('Started healthcheck thread')
+        if self.healthcheck_http_server:
+            self.healthcheck_http_server.shutdown()
 
-        stop_event = self.stop_event
+    def _create_healthcheck(self, port):
 
         class HealthcheckHTTPRequestHandler(BaseHTTPRequestHandler):
             def do_GET(self):
-                health = {'status': 'stopped' if stop_event.is_set() else 'ok'}
+                health = {'status': 'ok'}
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
@@ -167,5 +168,11 @@ class Server(object):
             def log_message(self, format, *args):
                 logger.debug("Healthcheck from %s %s" % (self.address_string(), format % args))
 
-        http_server = HTTPServer(('', port), HealthcheckHTTPRequestHandler)
-        http_server.serve_forever()
+        self.healthcheck_http_server = HTTPServer(('', port), HealthcheckHTTPRequestHandler)
+
+    def _run_healthcheck_thread(self):
+        logger.info('Started healthcheck thread')
+        self.healthcheck_http_server.serve_forever()
+        self.healthcheck_http_server.server_close()
+        self.healthcheck_http_server = None
+        logger.info('Ended healthcheck thread')

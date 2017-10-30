@@ -96,7 +96,8 @@ def main():
                           server_config=config['server_config'], worker_config=config['worker_config'],
                           healthcheck=config['healthcheck'])
 
-    server.run()  # does not return
+    server.run()  # does not return until server stopped
+    logger.info('Server exiting.')
     sys.exit(0)
 
 

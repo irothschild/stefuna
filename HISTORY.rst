@@ -3,6 +3,9 @@
 History
 -------
 
+0.9.4 [2017-10-30]
+* Shutdown healthcheck server immediately when stopping server
+
 0.9.3 [2017-10-27]
 * Add customizable Server subclass with init method.
 
