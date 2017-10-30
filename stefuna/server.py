@@ -81,11 +81,9 @@ class Server(object):
         self.workers = Semaphore(processes)
         self.stop_event = Event()
 
+        self.healthcheck_http_server = None
         if healthcheck:
             self._create_healthcheck(healthcheck)
-            healthcheck_thread = Thread(target=self._run_healthcheck_thread,
-                                        name='healthcheck', args=(), daemon=True)
-            healthcheck_thread.start()
 
         # Handle signals for graceful shutdown
         signal.signal(signal.SIGTERM, self._close_signal)
@@ -169,6 +167,10 @@ class Server(object):
                 logger.debug("Healthcheck from %s %s" % (self.address_string(), format % args))
 
         self.healthcheck_http_server = HTTPServer(('', port), HealthcheckHTTPRequestHandler)
+
+        healthcheck_thread = Thread(target=self._run_healthcheck_thread,
+                                    name='healthcheck', args=(), daemon=True)
+        healthcheck_thread.start()
 
     def _run_healthcheck_thread(self):
         logger.info('Started healthcheck thread')
