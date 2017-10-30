@@ -89,7 +89,7 @@ def main():
     server_class = Server
     if config['server']:
         server_class = locate(config['server'])
-    print(config)
+
     server = server_class(name=config['name'], activity_arn=config['activity_arn'],
                           processes=config['processes'], heartbeat=config['heartbeat'],
                           maxtasksperchild=config['maxtasksperchild'],
