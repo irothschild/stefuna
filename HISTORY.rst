@@ -3,7 +3,10 @@
 History
 -------
 
-0.9.4 [2017-10-30]
+0.9.5 [2017-10-30]
+* Keep pypi happy
+
+0.9.4 [2017-10-30] [not available through pypi]
 * Shutdown healthcheck server immediately when stopping server
 * Added info logs
 
