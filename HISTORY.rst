@@ -3,8 +3,9 @@
 History
 -------
 
-0.9.x [FUTURE]
+0.9.6 [2017-11-06]
 * Fix missing attribute bug if no healthcheck configured
+* Improved timing of heartbeats
 
 0.9.5 [2017-10-30]
 * Keep pypi happy

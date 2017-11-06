@@ -41,6 +41,9 @@ string and return value from ```run_task``` will be ignored.
 
 Configurable heartbeats are supported for longer-running tasks.
 
+A healthcheck port can be configured so the server listens for
+HTTP GET requests on `http://localhost:<healthcheck>/`
+
 The Server instance in the main class can be customized by
 setting a custom Server subclass in the config and overriding
 the `init` method.
@@ -104,7 +107,7 @@ activity ARN:
     # If None, it will be set to the number of cores.
     processes = None
 
-    # Maximum number of seconds between heartbeats.
+    # Number of seconds between heartbeats.
     # None or 0 means there is no heartbeat.
     heartbeat = 120
 

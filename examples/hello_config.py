@@ -19,7 +19,7 @@ activity_arn = 'arn:aws:states:us-west-2:00000000000000:activity:hello'
 # If None, it will be set to the number of cores.
 processes = None
 
-# Maximum number of seconds between heartbeats.
+# Number of seconds between heartbeats.
 # None or 0 means there is no heartbeat.
 heartbeat = 120
 
