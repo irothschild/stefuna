@@ -173,7 +173,7 @@ class TestServer(unittest.TestCase):
         self.assertEqual(worker.heartbeat_sf_client.heartbeats[0], task_token)
 
     def test_worker_heartbeat_multiple(self):
-        worker = SlowWorker(heartbeat=1)
+        worker = SlowWorker(heartbeat=1.2)
         task_token = 'token123'
         input_data = '{"name":"foo"}'
 
