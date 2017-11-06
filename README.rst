@@ -36,17 +36,17 @@ won't be released until the method returns.
 If ``run_task`` raises an exception, the task is failed
 with a ``Task.Failure`` error which can be handled in the Step
 Function state machine. Alternatively, a worker can call
-```self.send_task_failure(error, cause)``` with a custom error
-string and return value from ```run_task``` will be ignored.
+``self.send_task_failure(error, cause)`` with a custom error
+string and return value from ``run_task`` will be ignored.
 
 Configurable heartbeats are supported for longer-running tasks.
 
 A healthcheck port can be configured so the server listens for
-HTTP GET requests on `http://localhost:<healthcheck>/`
+HTTP GET requests on ``http://localhost:<healthcheck>/``
 
 The Server instance in the main class can be customized by
 setting a custom Server subclass in the config and overriding
-the `init` method.
+the ``init`` method.
 
 
 Getting Started
