@@ -78,6 +78,7 @@ class Worker(object):
             self.token_lock.acquire()
 
         self.task_token = task_token
+        self.task_token_time = time.time() if task_token is not None else None
 
         if self.token_lock is not None:
             self.token_lock.release()
@@ -163,12 +164,8 @@ class Worker(object):
         finally:
             self._task_result_status = False
 
-    def heartbeat(self):
+    def heartbeat(self, token):
         """Called from the heartbeat thread every X seconds"""
-        self.token_lock.acquire()
-        token = self.task_token
-        self.token_lock.release()
-
         if token is not None and token != self._heartbeat_fail_token:
             try:
                 self.logger.debug('Sending heartbeat for task')
@@ -180,7 +177,8 @@ class Worker(object):
                 if ecode in ['TaskDoesNotExist', 'InvalidToken', 'TaskTimedOut']:
                     # We set the heartbeat_fail_token so we don't retry a heartbeat for this token.
                     self._heartbeat_fail_token = token
-                    self.logger.error('Error sending heartbeat for task: %s', ecode)
+                    # We only use debug level logging since the task either deleted or ended.
+                    self.logger.debug('Error sending heartbeat for task: %s', ecode)
                 else:
                     self.logger.exception('Error sending heartbeat for task')
             except Exception:
@@ -191,8 +189,20 @@ class Worker(object):
         boto_config = BotoCoreConfig(region_name=region)
         self.heartbeat_sf_client = boto3.client('stepfunctions', config=boto_config)
         while True:
-            time.sleep(beat)
-            self.heartbeat()
+            self.token_lock.acquire()
+            token = self.task_token
+            token_time = self.task_token_time
+            self.token_lock.release()
+
+            if token is None:
+                time.sleep(beat)
+            else:
+                delta = time.time() - token_time
+                if delta + 0.5 < beat:
+                    time.sleep(beat - delta)  # sleep until beat seconds from start of token processing
+                else:
+                    self.heartbeat(token)
+                    time.sleep(beat)
 
 
 def init_worker(worker_class, region, heartbeat):

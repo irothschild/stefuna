@@ -158,6 +158,8 @@ class TestServer(unittest.TestCase):
         worker = SlowWorker(heartbeat=2)
         task_token = 'token123'
         input_data = '{"name":"foo"}'
+
+        time.sleep(1)  # wait a second to test the timing of heartbeats
         ret = worker._run_task(task_token, input_data)
         # Wait to make sure another heartbeat isn't sent
         time.sleep(3)
@@ -169,6 +171,24 @@ class TestServer(unittest.TestCase):
         self.assertEqual(len(worker.sf_client.heartbeats), 0)
         self.assertEqual(len(worker.heartbeat_sf_client.heartbeats), 1)
         self.assertEqual(worker.heartbeat_sf_client.heartbeats[0], task_token)
+
+    def test_worker_heartbeat_multiple(self):
+        worker = SlowWorker(heartbeat=1)
+        task_token = 'token123'
+        input_data = '{"name":"foo"}'
+
+        ret = worker._run_task(task_token, input_data)
+        # Wait to make sure another heartbeat isn't sent
+        time.sleep(3)
+        self.assertEqual(ret[0], task_token)
+        self.assertEqual(ret[1], 'task_success')
+        self.assertEqual(len(worker.sf_client.successes), 1)
+        self.assertEqual(worker.sf_client.successes[0][0], task_token)
+        self.assertEqual(len(worker.sf_client.failures), 0)
+        self.assertEqual(len(worker.sf_client.heartbeats), 0)
+        self.assertEqual(len(worker.heartbeat_sf_client.heartbeats), 2)
+        self.assertEqual(worker.heartbeat_sf_client.heartbeats[0], task_token)
+        self.assertEqual(worker.heartbeat_sf_client.heartbeats[1], task_token)
 
     def test_worker_heartbeat_fail(self):
         worker = SlowWorker(heartbeat=1)
