@@ -9,6 +9,7 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+    import setuptools  # noqa
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -19,7 +20,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='stefuna',
-    version='0.9.6',
+    version='0.9.7',
     description='AWS Step Function Activity server framework',
     long_description=readme + '\n\n' + history,
     author='Ivo Rothschild',
