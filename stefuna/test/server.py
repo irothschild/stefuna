@@ -7,7 +7,7 @@ import logging
 from threading import Thread
 from ..server import Server
 from ..worker import Worker, init_worker
-from ..util import configure_logger
+from ..util import configure_logger, SFN_LIMITS
 
 
 class SFClient(object):
@@ -75,12 +75,19 @@ class BadWorker(Worker):
         raise ValueError('Intentional bad worker error')
 
 
+class LimitExceedingCauseWorker(Worker):
+    def run_task(self, task_token, input_data):
+        self.logger.debug('Worker in run_task')
+        raise ValueError('Intentional breaking of the error cause size limit ' + ('E' * SFN_LIMITS['CAUSE_SIZE']))
+
+
 class TestServer(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         Server.worker_class = GoodWorker
         boto3.client = mock_stepfunction_client
+        SFN_LIMITS['CAUSE_SIZE'] = 32
 
     def test_configure_logger(self):
         configure_logger('stefuna',
@@ -140,6 +147,7 @@ class TestServer(unittest.TestCase):
         self.assertEqual(len(worker.sf_client.successes), 0)
         self.assertEqual(len(worker.sf_client.failures), 1)
         self.assertEqual(worker.sf_client.failures[0][0], task_token)
+        self.assertLessEqual(len(worker.sf_client.failures[0][2]), SFN_LIMITS['CAUSE_SIZE'])
         self.assertEqual(len(worker.sf_client.heartbeats), 0)
 
     def test_worker_failure_bad_worker(self):
@@ -152,6 +160,20 @@ class TestServer(unittest.TestCase):
         self.assertEqual(len(worker.sf_client.successes), 0)
         self.assertEqual(len(worker.sf_client.failures), 1)
         self.assertEqual(worker.sf_client.failures[0][0], task_token)
+        self.assertLessEqual(len(worker.sf_client.failures[0][2]), SFN_LIMITS['CAUSE_SIZE'])
+        self.assertEqual(len(worker.sf_client.heartbeats), 0)
+
+    def test_worker_failure_limit_exceeding_cause_worker(self):
+        worker = LimitExceedingCauseWorker()
+        task_token = 'token123'
+        input_data = '{"name":"foo"}'
+        ret = worker._run_task(task_token, input_data)
+        self.assertEqual(ret[0], task_token)
+        self.assertEqual(ret[1], 'task_failure')
+        self.assertEqual(len(worker.sf_client.successes), 0)
+        self.assertEqual(len(worker.sf_client.failures), 1)
+        self.assertEqual(worker.sf_client.failures[0][0], task_token)
+        self.assertEqual(len(worker.sf_client.failures[0][2]), SFN_LIMITS['CAUSE_SIZE'])
         self.assertEqual(len(worker.sf_client.heartbeats), 0)
 
     def test_worker_heartbeat(self):

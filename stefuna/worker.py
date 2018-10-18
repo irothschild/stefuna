@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError
 import signal
 from abc import ABCMeta, abstractmethod
 from threading import Thread, Lock
+from .util import safe_cause
 
 
 logger = logging.getLogger('stefuna')
@@ -156,7 +157,7 @@ class Worker(object):
             self.sf_client.send_task_failure(
                 taskToken=self.task_token,
                 error=error,
-                cause=cause
+                cause=safe_cause(cause)
             )
         except Exception:
             # We log the error and the task state will eventually timeout
