@@ -21,5 +21,5 @@ def configure_logger(name, log_format, handler):
 
 def safe_cause(cause):
     if len(cause) > SFN_LIMITS['CAUSE_SIZE']:
-        return cause[:SFN_LIMITS['CAUSE_SIZE']-len(ELLIPSIS)] + ELLIPSIS
+        return cause[:SFN_LIMITS['CAUSE_SIZE'] - len(ELLIPSIS)] + ELLIPSIS
     return cause
