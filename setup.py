@@ -9,7 +9,6 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-    import setuptools  # noqa
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
