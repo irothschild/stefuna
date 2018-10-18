@@ -6,7 +6,6 @@ History
 0.9.7 [2018-10-18]
 * Truncate the failure cause if over the result size limit
 * Removed Python 3.4 from Travis test envs due to a dateutils / urllib3 install conflict.
-* Added Python 3.7 to Travis test envs.
 
 0.9.6 [2017-11-06]
 * Fix missing attribute bug if no healthcheck configured
