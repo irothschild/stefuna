@@ -89,6 +89,9 @@ def main():
     server_class = Server
     if config['server']:
         server_class = locate(config['server'])
+        if server_class is None:
+            sys.stderr.write('Error locating server class {0}\n'.format(config['server']))
+            sys.exit(-1)
 
     server = server_class(name=config['name'], activity_arn=config['activity_arn'],
                           processes=config['processes'], heartbeat=config['heartbeat'],

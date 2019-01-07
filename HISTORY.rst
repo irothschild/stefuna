@@ -3,6 +3,9 @@
 History
 -------
 
+0.9.8 [unreleased]
+* Check server class was located
+
 0.9.7 [2018-10-18]
 * Truncate the failure cause if over the result size limit
 * Removed Python 3.4 from Travis test envs due to a dateutils / urllib3 install conflict.
