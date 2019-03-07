@@ -4,7 +4,7 @@ sys.path.append('.')
 import argparse  # noqa
 from stefuna import Server, configure_logger  # noqa
 from pydoc import locate  # noqa
-from multiprocessing import cpu_count  # noqa
+from multiprocessing import cpu_count, set_start_method  # noqa
 import logging  # noqa
 
 
@@ -32,7 +32,8 @@ config = {
     'server_config': {},
     'worker': 'UNSET_WORKER_CLASS',
     'worker_config': {},
-    'loglevel': 'info'
+    'loglevel': 'info',
+    'start_method': 'spawn'
 }
 
 
@@ -83,6 +84,10 @@ def main():
 
     logger.info('Running {0} for activity {1} {2} with {3} workers'.format(
         config['worker'], config['name'], config['activity_arn'], worker_count))
+
+    start_method = config['start_method']
+    if start_method:
+        set_start_method(start_method)
 
     Server.worker_class = locate(config['worker'])
 

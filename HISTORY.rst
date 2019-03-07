@@ -3,8 +3,9 @@
 History
 -------
 
-0.9.8 [unreleased]
+0.9.8 [2019-03-07]
 * Check server class was located
+* Add start_method as config setting and default to spawn.
 
 0.9.7 [2018-10-18]
 * Truncate the failure cause if over the result size limit

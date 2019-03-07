@@ -48,6 +48,13 @@ The Server instance in the main class can be customized by
 setting a custom Server subclass in the config and overriding
 the ``init`` method.
 
+The Python multiprocessing start method for worker processes
+can be set in the config. By default 'spawn' is used to ensure
+a clean, safe worker process. Although potentially slower than
+'forkserver' (or 'fork' which is not recommended), since new
+workers are typically rarely created, this should not be an
+issue.
+
 
 Getting Started
 ---------------
@@ -103,23 +110,39 @@ activity ARN:
     # Set the ARN for the activity that this server will work on.
     activity_arn = 'arn:aws:states:us-west-2:00000000000000:activity:hello'
 
-    # The number of worker processes.
+    # [OPTIONAL] The number of worker processes.
     # If None, it will be set to the number of cores.
+    # Default is None.
     processes = None
 
-    # Number of seconds between heartbeats.
+    # [OPTIONAL] Number of seconds between heartbeats.
     # None or 0 means there is no heartbeat.
+    # Default is no heartbeat.
     heartbeat = 120
 
-    # Maximum number of tasks for a worker to run before the worker
+    # [OPTIONAL] Maximum number of tasks for a worker to run before the worker
     # process is automatically killed and a new one created.
     # If None, workers will not be killed.
+    # Default is None.
     maxtasksperchild = None
 
-    # If set to a non-zero integer, an HTTP healthcheck handler listens on
+    # [OPTIONAL] The multiprocessing start method for worker processes.
+    # See https://docs.python.org/3.7/library/multiprocessing.html for more info
+    # The default is 'spawn' which starts a fresh python interpreter process.
+    # It is rather slow compared to using fork or forkserver, but we typically
+    # create workers and leave them running so the impact should be minimal.
+    # Possible values are:
+    # spawn - Recommended (Unix and Windows)
+    # fork - Not recommended due to thread-safety issues
+    # forkserver - On Unix platforms which support passing fds over Unix pipes
+    # '' - Uses the python defaults. Not recommended.
+    start_method = 'spawn'
+
+    # [OPTIONAL] If set to a non-zero integer, an HTTP healthcheck handler listens on
     # the port number.
     # Healthcheck requests are GET requests to 'http://localhost:<healthcheck>/'
     # and return JSON: {"status": "ok"}
+    # Default is 8080
     healthcheck = 8080
 
     # [OPTIONAL] The server_config is an arbitrary dictionary that is available
@@ -142,6 +165,26 @@ Run the server:
 .. code-block:: bash
 
     $ stefuna --config=hello_config
+
+
+.. code-block:: bash
+
+    $ stefuna --help
+    usage: stefuna [-h] [--config CONFIG] [--worker WORKER]
+                   [--processes PROCESSES] [--loglevel LOGLEVEL]
+
+    Run a Step Function Activity server.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --config CONFIG       Module or dict of config to override defaults
+      --worker WORKER       Module and class of worker in dot notation. Overrides
+                            config setting.
+      --processes PROCESSES
+                            Number of worker processes. Overrides config setting.
+                            If 0, cpu_count is used.
+      --loglevel LOGLEVEL   Loglevel (debug, info, warning, error or critical).
+                            Overrides config setting.
 
 
 History (Change Log)
