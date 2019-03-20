@@ -63,13 +63,14 @@ def main():
     if args.loglevel:
         config['loglevel'] = args.loglevel
 
+    loglevel_numeric = None
     loglevel = config.get('loglevel')
     if loglevel is not None:
-        numeric_level = getattr(logging, loglevel.upper(), None)
-        if not isinstance(numeric_level, int):
+        loglevel_numeric = getattr(logging, loglevel.upper(), None)
+        if not isinstance(loglevel_numeric, int):
             raise ValueError('Invalid log level: %s' % loglevel)
-        logger.setLevel(numeric_level)
-        logging.getLogger('').setLevel(numeric_level)
+        logger.setLevel(loglevel_numeric)
+        logging.getLogger('').setLevel(loglevel_numeric)
 
     if args.worker:
         config['worker'] = args.worker
@@ -101,8 +102,10 @@ def main():
     server = server_class(name=config['name'], activity_arn=config['activity_arn'],
                           processes=config['processes'], heartbeat=config['heartbeat'],
                           maxtasksperchild=config['maxtasksperchild'],
-                          server_config=config['server_config'], worker_config=config['worker_config'],
-                          healthcheck=config['healthcheck'])
+                          server_config=config['server_config'],
+                          worker_config=config['worker_config'],
+                          healthcheck=config['healthcheck'],
+                          loglevel=loglevel_numeric)
 
     server.run()  # does not return until server stopped
     logger.info('Server exiting.')
