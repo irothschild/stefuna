@@ -3,6 +3,9 @@
 History
 -------
 
+1.0.0 [2019-03-20]
+* Added docs
+
 0.9.9 [2019-03-20]
 * Fixed spawn configuration for workers on Unix.
 
