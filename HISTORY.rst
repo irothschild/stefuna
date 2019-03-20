@@ -3,9 +3,13 @@
 History
 -------
 
+0.9.9 [2019-03-20]
+* Fixed spawn configuration for workers on Unix.
+
 0.9.8 [2019-03-07]
 * Check server class was located
 * Add start_method as config setting and default to spawn.
+* BREAKING: Changed default config values. Heartbeat is disabled by default.
 
 0.9.7 [2018-10-18]
 * Truncate the failure cause if over the result size limit

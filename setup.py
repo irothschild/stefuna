@@ -19,7 +19,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='stefuna',
-    version='0.9.8',
+    version='0.9.9',
     description='AWS Step Function Activity server framework',
     long_description=readme + '\n\n' + history,
     author='Ivo Rothschild',
