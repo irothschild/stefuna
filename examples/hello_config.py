@@ -13,7 +13,7 @@ worker = 'examples.hello_worker.HelloWorker'
 name = 'HelloExample'
 
 # Set the ARN for the activity that this server will work on.
-activity_arn = 'arn:aws:states:us-west-2:00000000000000:activity:hello'
+activity_arn = 'arn:aws:states:us-east-1:00000000000000:activity:hello'
 
 # [OPTIONAL] The number of worker processes.
 # If None, it will be set to the number of cores.

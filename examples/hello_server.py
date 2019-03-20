@@ -3,6 +3,11 @@ from stefuna import Server
 
 logger = logging.getLogger('stefuna.example')
 
+#
+# Having a custom Server subclass is purely optional.
+# In most cases you will not require one.
+#
+
 
 class HelloServer(Server):
 
