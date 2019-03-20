@@ -61,8 +61,34 @@ Getting Started
 
 See the examples folder for the files described below.
 
-Create a worker class, which is a subclass of the `stefuna.Worker`
-in the file `hello_worker.py`:
+Step Function
+^^^^^^^^^^^^^^
+
+Create an AWS Step Function Activity, for example ``hello``.
+
+Then create a Step Function State Machine, using the ARN of the activity you just created.
+For example a single state ``Hello World`` State Machine:
+
+.. code-block:: JavaScript
+
+    {
+       "Comment": "A Hello World example with a single activity",
+       "StartAt": "HelloWorld",
+       "States": {
+          "HelloWorld": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:us-east-1:00000000000000:activity:hello",
+            "End": true
+          }
+       }
+    }
+
+
+Worker Code
+^^^^^^^^^^^
+
+Create a worker class, which is a subclass of the ``stefuna.Worker``
+in the file ``hello_worker.py``:
 
 .. code-block:: python
 
@@ -76,19 +102,21 @@ in the file `hello_worker.py`:
 
 	def init(self):
 	    """Initialize the single instance in a worker"""
-	    pass
+            # self.config is the worker config
+            self.logger.debug('Init worker instance')
 
 	def run_task(self, task_token, input_data):
 	    self.logger.debug('Worker in run_task')
 
 	    # Do some work!
+            # self.config is the worker config
 
 	    # Return value can be a string or a dict/array that
 	    # will be JSON stringified.
 	    return {"message": "Hello World"}
 
 
-Create a config file `hello_config.py`, setting the worker class, server name, and
+Create a config file ``hello_config.py``, setting the worker class, server name, and
 activity ARN:
 
 .. code-block:: python
@@ -108,7 +136,7 @@ activity ARN:
     name = 'HelloExample'
 
     # Set the ARN for the activity that this server will work on.
-    activity_arn = 'arn:aws:states:us-west-2:00000000000000:activity:hello'
+    activity_arn = 'arn:aws:states:us-east-1:00000000000000:activity:hello'
 
     # [OPTIONAL] The number of worker processes.
     # If None, it will be set to the number of cores.
