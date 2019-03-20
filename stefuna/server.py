@@ -34,13 +34,11 @@ class Server(object):
 
     def __init__(self, name='StefunaWorker', activity_arn=None,
                  processes=None, heartbeat=0, maxtasksperchild=100,
-                 server_config=None, worker_config=None, healthcheck=None):
+                 server_config=None, worker_config=None, healthcheck=None, loglevel=None):
 
         if Server.worker_class is None:
             raise ValueError('Server.worker_class must be set to a Worker '
                              'subclass before creating a server instance.')
-
-        Server.worker_class.config = worker_config
 
         self.config = server_config
 
@@ -72,7 +70,9 @@ class Server(object):
                      self.server_name, processes)
 
         self.pool = Pool(processes=processes,
-                         initializer=init_worker, initargs=(Server.worker_class, region, heartbeat),
+                         initializer=init_worker, initargs=(Server.worker_class,
+                                                            worker_config, region,
+                                                            heartbeat, loglevel),
                          maxtasksperchild=maxtasksperchild)
 
         # We keep track of available workers with a semaphore. This allows

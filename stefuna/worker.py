@@ -27,13 +27,12 @@ class Worker(object):
     # This is set to the single worker instance per child process.
     worker_instance = None
 
-    # Worker config, set from the server init.
-    config = None
-
     # Subclasses can use this worker logger if they wish.
     logger = logger
 
-    def __init__(self, region=None, heartbeat=0):
+    def __init__(self, config=None, region=None, heartbeat=0):
+
+        self.config = config
 
         boto_config = BotoCoreConfig(region_name=region)
         self.sf_client = boto3.client('stepfunctions', config=boto_config)
@@ -206,7 +205,7 @@ class Worker(object):
                     time.sleep(beat)
 
 
-def init_worker(worker_class, region, heartbeat):
+def init_worker(worker_class, worker_config, region, heartbeat, loglevel):
     """
     One-time initialize of each worker process.
     """
@@ -214,8 +213,13 @@ def init_worker(worker_class, region, heartbeat):
     signal.signal(signal.SIGTERM, _default_sigterm_handler)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
+    if loglevel is not None:
+        logger.setLevel(loglevel)
+        logging.getLogger('').setLevel(loglevel)
+
     # Create the single instance.
-    Worker.worker_instance = worker_class(region=region, heartbeat=heartbeat)
+    Worker.worker_instance = worker_class(config=worker_config, region=region,
+                                          heartbeat=heartbeat)
 
 
 def run_worker_task(task_token, input_data):

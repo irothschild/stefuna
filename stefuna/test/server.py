@@ -99,7 +99,7 @@ class TestServer(unittest.TestCase):
         server.run_task('1', '{}')
 
     def test_process_worker(self):
-        init_worker(GoodWorker, None, 0)
+        init_worker(GoodWorker, {'foo': 'bar'}, None, 0, None)
         worker = Worker.worker_instance
         task_token = 'token123'
         input_data = '{"name":"foo"}'
