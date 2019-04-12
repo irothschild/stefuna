@@ -3,6 +3,9 @@
 History
 -------
 
+[unreleased]
+* Restrict to python >=3.4
+
 1.0.0 [2019-03-20]
 * Added docs
 

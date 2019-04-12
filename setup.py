@@ -25,6 +25,7 @@ setup(
     author='Ivo Rothschild',
     author_email='ivo@clarify.io',
     url='https://github.com/irothschild/stefuna',
+    python_requires='>=3.4.0',
     packages=[
         'stefuna',
     ],
