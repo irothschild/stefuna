@@ -43,6 +43,8 @@ def main():
                         help='Module or dict of config to override defaults')
     parser.add_argument('--worker', dest='worker', action='store', required=False,
                         help='Module and class of worker in dot notation. Overrides config setting.')
+    parser.add_argument('--activity-arn', dest='activity_arn', action='store', required=False,
+                        help='Step Function Activity ARN, Overrides config setting.')
     parser.add_argument('--processes', type=int, dest='processes', action='store', required=False,
                         help='Number of worker processes. Overrides config setting. If 0, cpu_count is used.')
     parser.add_argument('--loglevel', dest='loglevel', action='store', required=False,
@@ -74,6 +76,9 @@ def main():
 
     if args.worker:
         config['worker'] = args.worker
+
+    if args.activity_arn:
+        config['activity_arn'] = args.activity_arn
 
     if args.processes is not None:
         # Setting to None will use the cpu_count processes
