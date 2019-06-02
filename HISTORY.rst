@@ -3,7 +3,7 @@
 History
 -------
 
-[unreleased]
+1.0.1 [2019-06-02]
 * Restrict to python >=3.4
 * Add activity-arn arg to stefuna
 
