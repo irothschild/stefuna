@@ -199,7 +199,8 @@ Run the server:
 
     $ stefuna --help
     usage: stefuna [-h] [--config CONFIG] [--worker WORKER]
-                   [--processes PROCESSES] [--loglevel LOGLEVEL]
+                   [--activity-arn ACTIVITY_ARN] [--processes PROCESSES]
+                   [--loglevel LOGLEVEL]
 
     Run a Step Function Activity server.
 
@@ -208,6 +209,8 @@ Run the server:
       --config CONFIG       Module or dict of config to override defaults
       --worker WORKER       Module and class of worker in dot notation. Overrides
                             config setting.
+      --activity-arn ACTIVITY_ARN
+                            Step Function Activity ARN, Overrides config setting.
       --processes PROCESSES
                             Number of worker processes. Overrides config setting.
                             If 0, cpu_count is used.
