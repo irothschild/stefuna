@@ -10,4 +10,5 @@ Development Lead
 Contributors
 ------------
 
-None yet.
+* Andrew McGrath (`<https://github.com/andrew-mcgrath>`_)
+* Laurent Jalbert-Simard (`<https://github.com/laurrentt>`_)
